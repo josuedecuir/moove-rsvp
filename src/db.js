@@ -29,11 +29,26 @@ CREATE TABLE IF NOT EXISTS socios (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   contact_id INTEGER NOT NULL REFERENCES contacts(id),
   nombre TEXT,
+  email TEXT,
   telefono TEXT,
-  ine_path TEXT,
+  ine_front_path TEXT,
+  ine_back_path TEXT,
   privacy_accepted_at TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `);
+
+// Migración ligera: si la tabla socios viene de una versión anterior sin
+// alguna de estas columnas, se agrega (no se borra nada existente).
+const socioCols = db.prepare("PRAGMA table_info(socios)").all().map((c) => c.name);
+if (!socioCols.includes("ine_front_path")) {
+  db.exec("ALTER TABLE socios ADD COLUMN ine_front_path TEXT");
+}
+if (!socioCols.includes("ine_back_path")) {
+  db.exec("ALTER TABLE socios ADD COLUMN ine_back_path TEXT");
+}
+if (!socioCols.includes("email")) {
+  db.exec("ALTER TABLE socios ADD COLUMN email TEXT");
+}
 
 module.exports = db;

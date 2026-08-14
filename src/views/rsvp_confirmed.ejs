@@ -8,8 +8,9 @@
 <div class="wrap">
   <%- include('partials/logo') %>
 
+  <% const displayFirstname = (contact.nombre || contact.firstname || '').trim().split(' ')[0]; %>
   <div class="kicker">Confirmado</div>
-  <div class="title">Nos vemos<br>pronto<%= contact.firstname ? ', ' + contact.firstname : '' %>.</div>
+  <div class="title">Nos vemos<br>pronto<%= displayFirstname ? ', ' + displayFirstname : '' %>.</div>
   <hr class="divider">
   <p class="body-copy">Ya tienes tu lugar apartado. Guarda este link — es tu acceso personal, siempre puedes volver a abrirlo.</p>
 

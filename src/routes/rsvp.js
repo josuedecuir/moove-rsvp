@@ -1,8 +1,5 @@
 const express = require("express");
-const path = require("path");
-const { nanoid } = require("nanoid");
 const db = require("../db");
-const { upload } = require("../upload");
 const { sendConfirmationEmail } = require("../email");
 const { EVENT_DATE_LABEL, EVENT_CITY, PRIVACY_URL, PUBLIC_BASE_URL } = require("../config");
 
@@ -13,10 +10,14 @@ const getSociosByContact = db.prepare("SELECT * FROM socios WHERE contact_id = ?
 
 const updateYes = db.prepare(`
   UPDATE contacts SET
-    nombre = ?, empresa = ?, telefono = ?, ine_path = COALESCE(?, ine_path),
+    nombre = ?, empresa = ?, telefono = ?,
     privacy_accepted_at = datetime('now'), status = 'yes', responded_at = datetime('now')
   WHERE id = ?
 `);
+
+function isValidPhone(telefono) {
+  return /^[0-9]{10}$/.test((telefono || "").trim());
+}
 
 const updateNo = db.prepare(`
   UPDATE contacts SET status = 'no', responded_at = datetime('now') WHERE id = ?
@@ -64,41 +65,37 @@ router.get("/:token", (req, res) => {
   });
 });
 
-router.post("/:token/yes", upload.single("ine"), (req, res) => {
+router.post("/:token/yes", (req, res) => {
   const contact = getContactByToken.get(req.params.token);
   if (!contact) return res.status(404).render("not_found", { title: "No encontrado" });
 
   const { nombre, empresa, telefono, privacy } = req.body;
+  const renderError = (msg) =>
+    res.status(400).render("rsvp_form", {
+      title: "Moove Private",
+      contact: { ...contact, nombre, empresa, telefono },
+      eventDate: EVENT_DATE_LABEL,
+      eventCity: EVENT_CITY,
+      privacyUrl: PRIVACY_URL,
+      error: msg,
+    });
 
   if (!nombre || !nombre.trim() || !empresa || !empresa.trim() || !telefono || !telefono.trim()) {
-    return res.status(400).render("rsvp_form", {
-      title: "Moove Private",
-      contact,
-      eventDate: EVENT_DATE_LABEL,
-      eventCity: EVENT_CITY,
-      privacyUrl: PRIVACY_URL,
-      error: "Faltan campos por completar.",
-    });
+    return renderError("Faltan campos por completar.");
+  }
+  if (!isValidPhone(telefono)) {
+    return renderError("El teléfono debe tener 10 dígitos.");
   }
   if (!privacy) {
-    return res.status(400).render("rsvp_form", {
-      title: "Moove Private",
-      contact,
-      eventDate: EVENT_DATE_LABEL,
-      eventCity: EVENT_CITY,
-      privacyUrl: PRIVACY_URL,
-      error: "Debes aceptar el aviso de privacidad para continuar.",
-    });
+    return renderError("Debes aceptar el aviso de privacidad para continuar.");
   }
 
-  const inePath = req.file ? path.basename(req.file.path) : null;
-
-  updateYes.run(nombre.trim(), empresa.trim(), telefono.trim(), inePath, contact.id);
+  updateYes.run(nombre.trim(), empresa.trim(), telefono.trim(), contact.id);
   const updated = getContactByToken.get(req.params.token);
 
   sendConfirmationEmail({
     to: updated.email,
-    firstname: updated.firstname,
+    firstname: (updated.nombre || updated.firstname || "").trim().split(" ")[0],
     rsvpUrl: rsvpUrl(updated),
     shareUrl: shareUrl(updated),
   }).catch((err) => console.error("[email] error enviando confirmación:", err.message));

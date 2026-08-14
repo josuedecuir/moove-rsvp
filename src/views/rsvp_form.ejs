@@ -16,7 +16,7 @@
     <div class="error-box"><%= error %></div>
   <% } %>
 
-  <form action="/rsvp/<%= contact.token %>/yes" method="POST" enctype="multipart/form-data">
+  <form action="/rsvp/<%= contact.token %>/yes" method="POST">
     <div class="field">
       <label>Nombre completo</label>
       <input type="text" name="nombre" placeholder="Nombre y apellidos" required
@@ -29,16 +29,9 @@
     </div>
     <div class="field">
       <label>Teléfono</label>
-      <input type="tel" name="telefono" placeholder="55 1234 5678" required
+      <input type="tel" name="telefono" placeholder="10 dígitos" required
+        pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Ingresa un teléfono a 10 dígitos"
         value="<%= contact.telefono || '' %>">
-    </div>
-    <div class="field">
-      <label>Identificación oficial (INE)</label>
-      <label class="field-file" id="ine-drop">
-        <input type="file" name="ine" accept="image/*" id="ine-input" <%= contact.ine_path ? '' : 'required' %>>
-        <span>Toca para subir una foto de tu INE</span>
-        <div class="fname" id="ine-fname"><%= contact.ine_path ? 'Ya tenemos una foto guardada. Sube otra solo si quieres cambiarla.' : '' %></div>
-      </label>
     </div>
 
     <div class="checkbox-row">
@@ -60,12 +53,10 @@
 </div>
 
 <script>
-  const fileInput = document.getElementById('ine-input');
-  const fname = document.getElementById('ine-fname');
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files && fileInput.files[0]) {
-      fname.textContent = fileInput.files[0].name;
-    }
+  document.querySelectorAll('input[type=tel]').forEach((el) => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+    });
   });
 </script>
 </body>

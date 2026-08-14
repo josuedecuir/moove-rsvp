@@ -11,7 +11,7 @@
   <div class="kicker">Invitación privada</div>
   <div class="title"><%= inviterName %> te invitó.</div>
   <div class="hint">
-    Evento privado de Moove — <%= eventDate %>, <%= eventCity %>. Confirma tu asistencia para quedar en la lista.
+    Evento privado de Moove — <%= eventDate %>, <%= eventCity %>. Confirma tu asistencia para quedar en la lista. Te mandaremos los detalles a tu correo en los siguientes días.
   </div>
 
   <% if (error) { %>
@@ -24,15 +24,28 @@
       <input type="text" name="nombre" placeholder="Nombre y apellidos" required>
     </div>
     <div class="field">
-      <label>Teléfono</label>
-      <input type="tel" name="telefono" placeholder="55 1234 5678" required>
+      <label>Correo</label>
+      <input type="email" name="email" placeholder="tu@correo.com" required autocomplete="email">
     </div>
     <div class="field">
-      <label>Identificación oficial (INE)</label>
-      <label class="field-file" id="ine-drop">
-        <input type="file" name="ine" accept="image/*" id="ine-input" required>
-        <span>Toca para subir una foto de tu INE</span>
-        <div class="fname" id="ine-fname"></div>
+      <label>Teléfono</label>
+      <input type="tel" name="telefono" placeholder="10 dígitos" required
+        pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Ingresa un teléfono a 10 dígitos">
+    </div>
+    <div class="field">
+      <label>Identificación oficial (INE) — anverso y reverso</label>
+      <div class="hint" style="margin-bottom:16px;">
+        Sube ambos lados. Asegúrate de que la foto salga <strong style="color:var(--subtle);">nítida y completamente legible</strong> — sin reflejos ni recortes.
+      </div>
+      <label class="field-file" id="ine-drop-front" style="display:block;margin-bottom:14px;">
+        <input type="file" name="ine_front" accept="image/*" id="ine-input-front" required>
+        <span>Anverso (frente) — toca para subir</span>
+        <div class="fname" id="ine-fname-front"></div>
+      </label>
+      <label class="field-file" id="ine-drop-back" style="display:block;">
+        <input type="file" name="ine_back" accept="image/*" id="ine-input-back" required>
+        <span>Reverso (atrás) — toca para subir</span>
+        <div class="fname" id="ine-fname-back"></div>
       </label>
     </div>
 
@@ -48,10 +61,17 @@
 </div>
 </div>
 <script>
-  const fileInput = document.getElementById('ine-input');
-  const fname = document.getElementById('ine-fname');
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files && fileInput.files[0]) fname.textContent = fileInput.files[0].name;
+  [['ine-input-front', 'ine-fname-front'], ['ine-input-back', 'ine-fname-back']].forEach(([inputId, fnameId]) => {
+    const fileInput = document.getElementById(inputId);
+    const fname = document.getElementById(fnameId);
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) fname.textContent = fileInput.files[0].name;
+    });
+  });
+  document.querySelectorAll('input[type=tel]').forEach((el) => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+    });
   });
 </script>
 </body>
