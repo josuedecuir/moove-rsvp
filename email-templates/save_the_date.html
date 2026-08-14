@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Moove Private</title>
+
+<style>
+body{margin:0;padding:0;background:#050605;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;}
+table{border-collapse:collapse;}
+img{border:0;display:block;}
+.wrapper{width:100%;background:#050605;padding:40px 16px;}
+.container{width:100%;max-width:640px;margin:0 auto;background:#0B0D0B;border:1px solid #1A1F1A;}
+.inner{padding:48px 44px 60px 44px;}
+.logo{width:160px;margin:0 auto;}
+.hero{text-align:center;padding-top:70px;padding-bottom:70px;}
+.kicker{color:#8D9687;text-transform:uppercase;letter-spacing:.28em;font-size:10px;}
+.title{margin-top:18px;color:#F4F1EA;font-family:Georgia,"Times New Roman",serif;font-size:56px;line-height:.98;letter-spacing:-0.05em;}
+.subtitle{margin-top:16px;color:#ADB7A6;font-family:Georgia,"Times New Roman",serif;font-size:26px;line-height:1.25;}
+.copy{color:#C7C4BB;font-size:15px;line-height:1.9;margin-top:24px;}
+.rsvp{margin-top:56px;text-align:center;}
+.question{color:#F4F1EA;font-family:Georgia,"Times New Roman",serif;font-size:28px;line-height:1.3;}
+.note{color:#879084;font-size:13px;margin-top:10px;}
+.button-row{margin-top:30px;}
+.btn{display:inline-block;text-decoration:none;padding:16px 30px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.btn-primary{background:#F4F1EA;color:#050605 !important;}
+.footer-copy{margin-top:70px;text-align:center;color:#879084;font-size:13px;font-style:italic;font-family:Georgia,"Times New Roman",serif;}
+.footer{text-align:center;color:#5F655D;font-size:10px;padding:0 24px 30px;}
+
+@media screen and (max-width:600px){
+.wrapper{padding:0;}
+.container{border-left:none;border-right:none;}
+.inner{padding:36px 24px 48px 24px;}
+.logo{width:90px;}
+.hero{padding-top:55px;padding-bottom:65px;}
+.title{font-size:40px;}
+.subtitle{font-size:21px;}
+.copy{font-size:15px;line-height:1.8;}
+.question{font-size:23px;}
+.btn{display:block;width:100%;box-sizing:border-box;margin:10px 0;}
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+<div class="container">
+<div class="inner">
+
+<svg width="96" height="20" viewBox="0 0 160 33" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+<path d="M159.999 2.95703L157.427 6.76812L150.321 8.80508L140.117 11.7338L141.83 7.48622L153.109 4.67484L159.999 2.95703Z" fill="white"/>
+<path d="M156.25 0L154.476 2.62834L142.583 5.5946L136.89 7.01202L129.178 8.93634L123.851 10.2646L93.7426 17.7694L92.0905 19.8862L117.82 13.4702L131.492 10.0628L136.12 8.90818L134.97 11.7571L134.308 13.3951L98.849 23.5565L98.8396 23.5612L98.8303 23.5658L82.3797 32.3144H82.375V8.42475L103.345 5.47726L117.895 3.43092L122.917 5.8809L136.65 3.45908L138.452 3.13992L143.967 2.16838L156.25 0Z" fill="white"/>
+<path d="M77.6125 8.42476V32.3191H77.6078L61.1479 23.5658L61.1432 23.5612L61.1338 23.5565L25.6794 13.3951L25.0176 11.7571L23.8677 8.90818L28.4955 10.0628L42.1675 13.4702H42.1722L67.897 19.8862L66.245 17.7694L36.1317 10.2646L30.8094 8.93634L23.098 7.01203L17.4048 5.5946L5.51162 2.62834L3.74219 0L16.0203 2.16838L21.5351 3.13992L23.3374 3.45908L37.0704 5.8809L42.0924 3.43092L56.6421 5.47726L77.6125 8.42476Z" fill="white"/>
+<path d="M19.8815 11.7291L9.67791 8.80508L2.57201 6.76812L0 2.95703L6.88999 4.67484L18.1684 7.48622L19.8815 11.7291Z" fill="white"/>
+</svg>
+
+<div class="hero">
+<div class="kicker">INVITACIÓN PRIVADA</div>
+<div class="title">MOOVE PRIVATE</div>
+<div class="subtitle">Algo está por suceder.</div>
+</div>
+
+<div class="copy">
+Hola {{ contact.firstname | default: 'Nombre' }},
+</div>
+
+<div class="copy">
+Hay un grupo muy reducido de clientes Moove que va a recibir esto antes que nadie.
+</div>
+
+<div class="copy">
+El 15 de octubre vamos a reunir a ese grupo en un espacio privado en la Ciudad de México. No es un evento abierto. No hay lista pública.
+</div>
+
+<div class="copy">
+Todavía no podemos decirte de qué se trata. Lo que sí podemos decirte es que vale la pena que apartes la fecha.
+</div>
+
+<div class="rsvp">
+<div class="question">¿Podremos contar contigo?</div>
+<div class="note">Confirma en menos de un minuto — solo necesitamos algunos datos.</div>
+<div class="button-row">
+<a href="{{ RSVP_URL }}" class="btn btn-primary">Confirmar mi asistencia</a>
+</div>
+</div>
+
+<div class="footer-copy">
+Si tienes socios en tu empresa que también quieras invitar, podrás agregarlos al confirmar.
+</div>
+
+</div>
+
+<div class="footer">
+Moove Private · Confidencial · Este correo no acepta respuestas directas.
+</div>
+
+</div>
+</div>
+</body>
+</html>

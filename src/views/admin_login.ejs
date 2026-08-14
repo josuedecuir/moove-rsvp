@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+  <%- include('partials/logo') %>
+  <div class="kicker">Admin</div>
+  <div class="title">Panel de RSVP</div>
+
+  <% if (error) { %>
+    <div class="error-box"><%= error %></div>
+  <% } %>
+
+  <form action="/admin/login" method="POST">
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" name="username" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn-next btn-primary">Entrar</button>
+  </form>
+</div>
+</div>
+</body>
+</html>

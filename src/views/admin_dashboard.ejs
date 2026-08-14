@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+<style>
+  .page{ align-items:stretch; justify-content:flex-start; padding:48px 24px; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; max-width:1000px; margin:0 auto 32px; width:100%; }
+  .stats{ display:flex; gap:28px; flex-wrap:wrap; max-width:1000px; margin:0 auto 40px; width:100%; }
+  .stat{ border:1px solid var(--border2); padding:16px 22px; min-width:110px; }
+  .stat .n{ font-family:'EB Garamond',Georgia,serif; font-size:30px; color:var(--text); }
+  .stat .l{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+  table.contacts{ width:100%; max-width:1000px; margin:0 auto; border-collapse:collapse; }
+  table.contacts th{ text-align:left; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); padding:10px 12px; border-bottom:1px solid var(--border2); }
+  table.contacts td{ padding:12px; border-bottom:1px solid var(--border); font-size:13px; color:var(--subtle); vertical-align:top; }
+  .status-pill{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border:1px solid var(--border2); display:inline-block; }
+  .status-yes{ color:#B7D9B0; border-color:#33502F; }
+  .status-no{ color:#D9B0B0; border-color:#503131; }
+  .status-pending{ color:var(--muted); }
+  .socio-row{ font-size:12px; color:var(--muted); padding-left:16px; }
+  .ine-link{ color:var(--subtle); font-size:12px; }
+  .logout-form{ display:inline; }
+  .logout-btn{ background:none;border:1px solid var(--border2);color:var(--subtle);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div>
+      <%- include('partials/logo') %>
+      <div class="kicker" style="margin:0;">Panel de RSVP · Moove Private</div>
+    </div>
+    <form class="logout-form" action="/admin/logout" method="POST">
+      <button class="logout-btn" type="submit">Cerrar sesión</button>
+    </form>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n"><%= stats.total %></div><div class="l">Contactos</div></div>
+    <div class="stat"><div class="n"><%= stats.yes %></div><div class="l">Confirmados</div></div>
+    <div class="stat"><div class="n"><%= stats.no %></div><div class="l">Declinaron</div></div>
+    <div class="stat"><div class="n"><%= stats.pending %></div><div class="l">Pendientes</div></div>
+    <div class="stat"><div class="n"><%= stats.socios %></div><div class="l">Socios invitados</div></div>
+  </div>
+
+  <table class="contacts">
+    <thead>
+      <tr>
+        <th>Contacto</th>
+        <th>Empresa</th>
+        <th>Teléfono</th>
+        <th>Estatus</th>
+        <th>INE</th>
+        <th>Respondió</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% contacts.forEach(function(c) { %>
+        <tr>
+          <td>
+            <strong style="color:var(--text);"><%= c.nombre || c.firstname || '—' %></strong><br>
+            <span style="color:var(--muted);"><%= c.email || '' %></span>
+          </td>
+          <td><%= c.empresa || '—' %></td>
+          <td><%= c.telefono || '—' %></td>
+          <td>
+            <span class="status-pill status-<%= c.status %>"><%= c.status %></span>
+          </td>
+          <td>
+            <% if (c.ine_path) { %>
+              <a class="ine-link" href="/admin/file/<%= c.ine_path %>" target="_blank" rel="noopener">Ver INE</a>
+            <% } else { %>
+              —
+            <% } %>
+          </td>
+          <td><%= c.responded_at || '—' %></td>
+        </tr>
+        <% (sociosByContact[c.id] || []).forEach(function(s) { %>
+          <tr class="socio-row">
+            <td>↳ <%= s.nombre %></td>
+            <td>socio invitado</td>
+            <td><%= s.telefono %></td>
+            <td>—</td>
+            <td>
+              <% if (s.ine_path) { %>
+                <a class="ine-link" href="/admin/file/<%= s.ine_path %>" target="_blank" rel="noopener">Ver INE</a>
+              <% } else { %>—<% } %>
+            </td>
+            <td><%= s.created_at %></td>
+          </tr>
+        <% }); %>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

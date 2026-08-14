@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+  <%- include('partials/logo') %>
+
+  <div class="kicker">Moove Private</div>
+  <div class="title">Qué mal,<br>nos hubiera<br>gustado.</div>
+  <hr class="divider">
+  <p class="body-copy">Si algo cambia, aquí puedes actualizar tu respuesta cuando quieras.</p>
+
+  <a href="/rsvp/<%= contact.token %>?edit=1" class="btn-next btn-primary" style="margin-top:20px;">Cambié de opinión — sí voy</a>
+</div>
+</div>
+</body>
+</html>

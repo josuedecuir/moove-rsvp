@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+  <%- include('partials/logo') %>
+
+  <div class="kicker">Confirmado</div>
+  <div class="title">Nos vemos<br>pronto<%= contact.firstname ? ', ' + contact.firstname : '' %>.</div>
+  <hr class="divider">
+  <p class="body-copy">Ya tienes tu lugar apartado. Guarda este link — es tu acceso personal, siempre puedes volver a abrirlo.</p>
+
+  <div class="share-box">
+    <div class="label">Comparte con tus socios</div>
+    <p class="hint" style="margin-bottom:14px;">Si alguien de tu empresa también quiere venir, comparte este link — ellos suben su propia información.</p>
+    <div class="link" id="share-link"><%= shareUrl %></div>
+    <button class="copy-btn" onclick="copyShare()">Copiar link</button>
+  </div>
+
+  <p class="hint" style="margin-top:32px;">
+    ¿Necesitas cambiar algo de tu información o tu respuesta?
+    <a href="/rsvp/<%= contact.token %>?edit=1" style="color:var(--subtle);">Editar mi confirmación</a>
+  </p>
+</div>
+</div>
+<script>
+function copyShare(){
+  navigator.clipboard.writeText(document.getElementById('share-link').textContent.trim());
+}
+</script>
+</body>
+</html>
