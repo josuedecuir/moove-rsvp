@@ -8,7 +8,7 @@ const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
 const adminRoutes = require("./routes/admin");
 const joinRoutes = require("./routes/join");
-const { EVENT_DATE_LABEL, EVENT_CITY, JOIN_TOKEN } = require("./config");
+const { EVENT_DATE_LABEL, EVENT_CITY, JOIN_TOKEN, PUBLIC_BASE_URL } = require("./config");
 
 const app = express();
 
@@ -22,6 +22,12 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+
+// Disponible en todas las vistas para armar meta tags Open Graph absolutos.
+app.use((req, res, next) => {
+  res.locals.baseUrl = PUBLIC_BASE_URL;
+  next();
+});
 
 // Guarda las sesiones en el mismo SQLite del Volume (tabla `sessions` en
 // db.js) en vez de en memoria — así sobreviven a los redeploys y no hay
@@ -49,6 +55,8 @@ app.get("/", (req, res) => {
     eventDate: EVENT_DATE_LABEL,
     eventCity: EVENT_CITY,
     joinToken: JOIN_TOKEN,
+    ogTitle: "Moove Private — Algo está por suceder.",
+    ogDescription: `${EVENT_DATE_LABEL} · ${EVENT_CITY}. Evento privado — confirma tu asistencia.`,
   });
 });
 

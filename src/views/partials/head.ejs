@@ -2,6 +2,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title><%= typeof title !== 'undefined' ? title : 'Moove Private' %></title>
+<%
+  const _ogTitle = typeof ogTitle !== 'undefined' ? ogTitle : 'Moove Private';
+  const _ogDescription = typeof ogDescription !== 'undefined' ? ogDescription : 'Invitación privada. Evento exclusivo — confirma tu asistencia.';
+  const _ogImage = typeof ogImage !== 'undefined' ? ogImage : (baseUrl + '/og-image.png');
+  const _ogUrl = typeof ogUrl !== 'undefined' ? ogUrl : baseUrl;
+%>
+<meta property="og:type" content="website">
+<meta property="og:title" content="<%= _ogTitle %>">
+<meta property="og:description" content="<%= _ogDescription %>">
+<meta property="og:image" content="<%= _ogImage %>">
+<meta property="og:url" content="<%= _ogUrl %>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= _ogTitle %>">
+<meta name="twitter:description" content="<%= _ogDescription %>">
+<meta name="twitter:image" content="<%= _ogImage %>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">

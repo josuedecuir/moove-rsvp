@@ -35,6 +35,8 @@ router.get("/:token", (req, res) => {
     privacyUrl: PRIVACY_URL,
     joinToken: JOIN_TOKEN,
     error: null,
+    ogTitle: "Moove Private — Algo está por suceder.",
+    ogDescription: `${EVENT_DATE_LABEL} · ${EVENT_CITY}. Evento privado — confirma tu asistencia.`,
   });
 });
 
