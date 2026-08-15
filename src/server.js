@@ -9,6 +9,11 @@ const adminRoutes = require("./routes/admin");
 
 const app = express();
 
+// Railway (y la mayoría de PaaS) terminan el HTTPS en su proxy y reenvían la
+// petición por HTTP interno — sin esto, Express no reconoce la conexión como
+// segura y la cookie de sesión (secure: true) nunca se guarda.
+app.set("trust proxy", 1);
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -21,9 +26,11 @@ app.use(
     secret: process.env.SESSION_SECRET || "dev-secret-cambia-esto",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 8 * 60 * 60 * 1000, // 8 horas
     },
   })
