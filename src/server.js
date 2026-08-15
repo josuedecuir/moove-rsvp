@@ -2,6 +2,7 @@ require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
+const SqliteSessionStore = require("./sessionStore");
 
 const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
@@ -21,8 +22,12 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Guarda las sesiones en el mismo SQLite del Volume (tabla `sessions` en
+// db.js) en vez de en memoria — así sobreviven a los redeploys y no hay
+// riesgo de fuga de memoria en el proceso.
 app.use(
   session({
+    store: new SqliteSessionStore(),
     name: "moove.admin.sid",
     secret: process.env.SESSION_SECRET || "dev-secret-cambia-esto",
     resave: false,
