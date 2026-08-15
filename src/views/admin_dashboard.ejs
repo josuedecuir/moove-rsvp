@@ -81,6 +81,7 @@
         <th>INE</th>
         <th>Link RSVP</th>
         <th>Respondió</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -104,6 +105,11 @@
           </td>
           <td><span class="rsvp-link"><%= baseUrl %>/rsvp/<%= c.token %></span></td>
           <td><%= c.responded_at || '—' %></td>
+          <td>
+            <form action="/admin/contacts/<%= c.id %>/delete" method="POST" onsubmit="return confirm('¿Borrar a ' + <%- JSON.stringify(c.nombre || c.firstname || c.email) %> + ' y sus socios?');">
+              <button type="submit" class="logout-btn" style="padding:6px 10px;font-size:10px;">Borrar</button>
+            </form>
+          </td>
         </tr>
         <% (sociosByContact[c.id] || []).forEach(function(s) { %>
           <tr class="socio-row">
@@ -121,6 +127,7 @@
             </td>
             <td>—</td>
             <td><%= s.created_at %></td>
+            <td></td>
           </tr>
         <% }); %>
       <% }); %>

@@ -81,6 +81,19 @@ router.post("/contacts", requireAuth, (req, res) => {
   res.redirect("/admin");
 });
 
+const deleteSociosByContact = db.prepare("DELETE FROM socios WHERE contact_id = ?");
+const deleteContactById = db.prepare("DELETE FROM contacts WHERE id = ?");
+
+// Borra un contacto y a sus socios (ej. para limpiar pruebas).
+router.post("/contacts/:id/delete", requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id)) {
+    deleteSociosByContact.run(id);
+    deleteContactById.run(id);
+  }
+  res.redirect("/admin");
+});
+
 function csvCell(value) {
   const s = value === null || value === undefined ? "" : String(value);
   if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
