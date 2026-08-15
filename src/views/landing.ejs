@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+  <%- include('partials/logo') %>
+
+  <div class="kicker">Invitación privada</div>
+  <div class="title">Algo está<br>por suceder.</div>
+
+  <p class="body-copy">Hay un grupo muy reducido de clientes Moove que va a recibir esto antes que nadie.</p>
+  <p class="body-copy">El <%= eventDate %> vamos a reunir a ese grupo en un espacio privado en <%= eventCity %>. No es un evento abierto. No hay lista pública.</p>
+  <p class="body-copy">Todavía no podemos decirte de qué se trata. Lo que sí podemos decirte es que vale la pena que apartes la fecha.</p>
+
+  <hr class="divider">
+
+  <div class="hint" style="margin-bottom:20px;">¿Podremos contar contigo? Confirma en menos de un minuto — solo necesitamos algunos datos.</div>
+  <a href="/join/<%= joinToken %>" class="btn-next btn-primary" style="width:100%;box-sizing:border-box;text-align:center;">Confirmar mi asistencia</a>
+
+  <p class="hint" style="margin-top:24px;">Si tienes socios en tu empresa que también quieras invitar, podrás agregarlos al confirmar.</p>
+</div>
+</div>
+</body>
+</html>

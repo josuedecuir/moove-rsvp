@@ -8,6 +8,7 @@ const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
 const adminRoutes = require("./routes/admin");
 const joinRoutes = require("./routes/join");
+const { EVENT_DATE_LABEL, EVENT_CITY, JOIN_TOKEN } = require("./config");
 
 const app = express();
 
@@ -42,7 +43,14 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => res.redirect("/admin"));
+app.get("/", (req, res) => {
+  res.render("landing", {
+    title: "Moove Private",
+    eventDate: EVENT_DATE_LABEL,
+    eventCity: EVENT_CITY,
+    joinToken: JOIN_TOKEN,
+  });
+});
 
 app.use("/rsvp", rsvpRoutes);
 app.use("/invite", inviteRoutes);
