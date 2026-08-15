@@ -6,6 +6,7 @@ const session = require("express-session");
 const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
 const adminRoutes = require("./routes/admin");
+const joinRoutes = require("./routes/join");
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.get("/", (req, res) => res.redirect("/admin"));
 app.use("/rsvp", rsvpRoutes);
 app.use("/invite", inviteRoutes);
 app.use("/admin", adminRoutes);
+app.use("/join", joinRoutes);
 
 app.use((req, res) => {
   res.status(404).render("not_found", { title: "No encontrado" });

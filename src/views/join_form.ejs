@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="page">
+<div class="wrap">
+  <%- include('partials/logo') %>
+
+  <div class="kicker">Moove Private · Invitación</div>
+  <div class="title">¿Nos<br>acompañas<br>el <%= eventDate %>?</div>
+  <div class="hint"><%= eventCity %>. Evento privado — completa tus datos para quedar en la lista.</div>
+
+  <% if (error) { %>
+    <div class="error-box"><%= error %></div>
+  <% } %>
+
+  <form action="/join/<%= joinToken %>" method="POST">
+    <div class="field">
+      <label>Nombre completo</label>
+      <input type="text" name="nombre" placeholder="Nombre y apellidos" required>
+    </div>
+    <div class="field">
+      <label>Correo</label>
+      <input type="email" name="email" placeholder="tu@correo.com" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Empresa / razón social</label>
+      <input type="text" name="empresa" placeholder="Nombre de tu empresa" required>
+    </div>
+    <div class="field">
+      <label>Teléfono</label>
+      <input type="tel" name="telefono" placeholder="10 dígitos" required
+        pattern="[0-9]{10}" maxlength="10" inputmode="numeric" title="Ingresa un teléfono a 10 dígitos">
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" name="privacy" id="privacy" value="1" required>
+      <label for="privacy">
+        He leído y acepto el <a href="<%= privacyUrl %>" target="_blank" rel="noopener">aviso de privacidad de Moove</a>.
+      </label>
+    </div>
+
+    <button type="submit" class="btn-next btn-primary">Confirmar asistencia</button>
+  </form>
+</div>
+</div>
+
+<script>
+  document.querySelectorAll('input[type=tel]').forEach((el) => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+    });
+  });
+</script>
+</body>
+</html>
