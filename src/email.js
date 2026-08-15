@@ -42,6 +42,9 @@ async function sendConfirmationEmail({ to, firstname, rsvpUrl, shareUrl }) {
         </a>
       </p>
       <p style="color:#C7C4BB;font-size:15px;line-height:1.8;">
+        En los próximos días te compartimos los detalles puntuales del evento.
+      </p>
+      <p style="color:#C7C4BB;font-size:15px;line-height:1.8;">
         Si tienes socios en tu empresa que quieras invitar, comparte este otro link con ellos:
       </p>
       <p style="color:#ADB7A6;font-size:13px;word-break:break-all;">
