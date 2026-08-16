@@ -15,6 +15,22 @@ const insertContact = db.prepare(`
   VALUES (?, ?, ?, ?, ?)
 `);
 
+const insertContactFull = db.prepare(`
+  INSERT INTO contacts (token, share_token, nombre, email, empresa, telefono)
+  VALUES (?, ?, ?, ?, ?, ?)
+`);
+
+// Solo se actualizan nombre/empresa/teléfono si el contacto sigue "pending" —
+// si ya respondió (yes/no), sus propios datos mandan y no se pisan con el CSV.
+const updateContactIfPending = db.prepare(`
+  UPDATE contacts SET nombre = ?, empresa = ?, telefono = ?
+  WHERE id = ? AND status = 'pending'
+`);
+
+const updateContactFields = db.prepare(`
+  UPDATE contacts SET nombre = ?, empresa = ?, telefono = ? WHERE id = ?
+`);
+
 const getContactByEmail = db.prepare("SELECT * FROM contacts WHERE LOWER(email) = LOWER(?)");
 
 // Parser de CSV con soporte de campos entre comillas (a diferencia del
@@ -139,9 +155,24 @@ router.post("/contacts/:id/delete", requireAuth, (req, res) => {
   res.redirect("/admin");
 });
 
-// Importa en lote un CSV (firstname,email,empresa) y regresa al instante un
-// CSV listo para Mailchimp con el RSVP_URL de cada quien. Si el correo ya
-// existe, reutiliza su contacto y token de siempre — no crea duplicados.
+// Edita nombre/empresa/teléfono de un contacto ya existente (ej. para
+// corregir datos que vinieron mal del CSV de origen).
+router.post("/contacts/:id/edit", requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  const { nombre, empresa, telefono } = req.body;
+  if (Number.isInteger(id)) {
+    updateContactFields.run((nombre || "").trim() || null, (empresa || "").trim() || null, (telefono || "").trim() || null, id);
+  }
+  res.redirect("/admin");
+});
+
+// Importa en lote un CSV (nombre,email,empresa,telefono — o el formato viejo
+// firstname,email,empresa, sigue funcionando) y regresa al instante un CSV
+// listo para Mailchimp con el RSVP_URL de cada quien. Si el correo ya existe:
+// - y sigue "pending", se actualizan sus datos (nombre/empresa/teléfono) con
+//   los del CSV — útil para corregir datos que vinieron mal la primera vez.
+// - y ya respondió (yes/no), no se toca nada — sus propios datos mandan.
+// En ningún caso se duplica: siempre se reutiliza el token de siempre.
 router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res) => {
   if (!req.file) return res.redirect("/admin");
 
@@ -150,32 +181,41 @@ router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res
 
   const out = [["firstname", "email", "RSVP_URL"]];
   let creados = 0;
+  let actualizados = 0;
   let existentes = 0;
   let omitidos = 0;
 
   for (const row of rows) {
     const email = (row.email || "").trim();
-    const firstname = (row.firstname || "").trim();
+    const nombreCompleto = (row.nombre || row.firstname || "").trim();
     const empresa = (row.empresa || "").trim();
+    const telefono = (row.telefono || "").trim();
     if (!email) { omitidos++; continue; }
+
+    const firstNameForMailchimp = nombreCompleto.split(/\s+/)[0] || "";
 
     const existing = getContactByEmail.get(email);
     let token;
     if (existing) {
       token = existing.token;
-      existentes++;
+      if (existing.status === "pending") {
+        updateContactIfPending.run(nombreCompleto || null, empresa || null, telefono || null, existing.id);
+        actualizados++;
+      } else {
+        existentes++;
+      }
     } else {
       token = nanoid(24);
       const shareToken = nanoid(24);
-      insertContact.run(token, shareToken, firstname, email, empresa || null);
+      insertContactFull.run(token, shareToken, nombreCompleto, email, empresa || null, telefono || null);
       creados++;
     }
-    out.push([firstname, email, `${PUBLIC_BASE_URL}/rsvp/${token}`]);
+    out.push([firstNameForMailchimp, email, `${PUBLIC_BASE_URL}/rsvp/${token}`]);
   }
 
   const csv = out.map((r) => r.map(csvCell).join(",")).join("\r\n");
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("X-Import-Summary", `creados=${creados};existentes=${existentes};omitidos=${omitidos}`);
+  res.setHeader("X-Import-Summary", `creados=${creados};actualizados=${actualizados};existentes=${existentes};omitidos=${omitidos}`);
   res.setHeader("Content-Disposition", 'attachment; filename="moove_mailchimp_rsvp_urls.csv"');
   res.send("﻿" + csv);
 });
