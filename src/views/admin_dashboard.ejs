@@ -26,7 +26,9 @@
   .add-contact .f{ flex:1; min-width:160px; }
   .add-contact .f label{ display:block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
   .add-contact .f input{ width:100%; background:transparent; border:none; border-bottom:1px solid var(--border2); padding:8px 0; color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; }
-  .rsvp-link{ font-size:11px; color:var(--muted); word-break:break-all; }
+  .rsvp-link{ font-size:11px; color:var(--muted); word-break:break-all; cursor:pointer; }
+  .rsvp-link:hover{ color:var(--subtle); text-decoration:underline; }
+  .rsvp-link.copied{ color:#B7D9B0; }
 </style>
 </head>
 <body>
@@ -103,7 +105,7 @@
               —
             <% } %>
           </td>
-          <td><span class="rsvp-link"><%= baseUrl %>/rsvp/<%= c.token %></span></td>
+          <td><span class="rsvp-link" onclick="copyRsvpLink(this)" title="Click para copiar"><%= baseUrl %>/rsvp/<%= c.token %></span></td>
           <td><%= c.responded_at || '—' %></td>
           <td>
             <form action="/admin/contacts/<%= c.id %>/delete" method="POST" onsubmit="return confirm('¿Borrar a ' + <%- JSON.stringify(c.nombre || c.firstname || c.email) %> + ' y sus socios?');">
@@ -134,5 +136,19 @@
     </tbody>
   </table>
 </div>
+<script>
+function copyRsvpLink(el){
+  const text = el.textContent.trim();
+  navigator.clipboard.writeText(text).then(function(){
+    const original = el.textContent;
+    el.textContent = 'Copiado ✓';
+    el.classList.add('copied');
+    setTimeout(function(){
+      el.textContent = original;
+      el.classList.remove('copied');
+    }, 1200);
+  });
+}
+</script>
 </body>
 </html>
