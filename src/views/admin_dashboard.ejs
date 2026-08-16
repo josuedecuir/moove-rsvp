@@ -47,7 +47,7 @@
       <div class="kicker" style="margin:0;">Panel de RSVP · Moove Private</div>
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <a href="/admin/export.csv" class="logout-btn" style="text-decoration:none;display:inline-block;">Descargar CSV (Mailchimp)</a>
+      <button type="button" class="logout-btn" onclick="downloadCsv()">Descargar CSV (Mailchimp)</button>
       <form class="logout-form" action="/admin/logout" method="POST">
         <button class="logout-btn" type="submit">Cerrar sesión</button>
       </form>
@@ -86,14 +86,19 @@
     <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">
       Columnas: <code>nombre,email,empresa,telefono</code> (empresa y teléfono opcionales; el formato viejo <code>firstname,email,empresa</code> también funciona).
       Si un correo ya existe: si sigue "pending" se actualizan sus datos con los del CSV, si ya respondió no se toca — en ningún caso se duplica, siempre se reutiliza su link de siempre.
-      Al enviar, descarga automáticamente un CSV con la columna <code>RSVP_URL</code> lista para subir a Mailchimp.
+      Al enviar se importa y esta misma página se recarga con la tabla actualizada — para el CSV con <code>RSVP_URL</code> listo para Mailchimp usa el botón "Descargar CSV (Mailchimp)" de arriba (opción "Todos").
     </div>
+    <% if (typeof importSummary !== 'undefined' && importSummary) { %>
+      <div style="font-size:12px;color:#B7D9B0;margin-bottom:14px;border:1px solid #33502F;padding:10px 14px;">
+        Import listo — creados: <%= importSummary.creados %>, actualizados: <%= importSummary.actualizados %>, ya existían (no tocados): <%= importSummary.existentes %><% if (importSummary.omitidos) { %>, omitidos (sin correo): <%= importSummary.omitidos %><% } %>.
+      </div>
+    <% } %>
     <form action="/admin/contacts/import" method="POST" enctype="multipart/form-data" style="display:flex;gap:14px;align-items:flex-end;">
       <div class="f">
         <label>Archivo CSV</label>
         <input type="file" name="file" accept=".csv" required style="color:var(--text);font-size:13px;">
       </div>
-      <button type="submit" class="logout-btn" style="height:38px;">Importar y descargar</button>
+      <button type="submit" class="logout-btn" style="height:38px;">Importar</button>
     </form>
   </div>
 
@@ -184,6 +189,10 @@
   </table>
 </div>
 <script>
+function downloadCsv(){
+  const todos = confirm('¿Descargar el CSV?\n\nAceptar = TODOS los contactos, con su RSVP_URL (para la campaña de invitación)\nCancelar = Solo confirmados que sí van + sus invitados (para sincronizar la lista final)');
+  window.location.href = '/admin/export.csv?scope=' + (todos ? 'todos' : 'confirmados');
+}
 function toggleEdit(id){
   document.getElementById('edit-row-' + id).classList.toggle('open');
 }

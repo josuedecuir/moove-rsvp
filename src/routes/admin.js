@@ -121,12 +121,23 @@ router.get("/", requireAuth, (req, res) => {
     socios: socios.length,
   };
 
+  let importSummary = null;
+  if (req.query.creados !== undefined) {
+    importSummary = {
+      creados: Number(req.query.creados) || 0,
+      actualizados: Number(req.query.actualizados) || 0,
+      existentes: Number(req.query.existentes) || 0,
+      omitidos: Number(req.query.omitidos) || 0,
+    };
+  }
+
   res.render("admin_dashboard", {
     title: "Admin — Moove Private",
     contacts,
     sociosByContact,
     stats,
     baseUrl: PUBLIC_BASE_URL,
+    importSummary,
   });
 });
 
@@ -167,19 +178,19 @@ router.post("/contacts/:id/edit", requireAuth, (req, res) => {
 });
 
 // Importa en lote un CSV (nombre,email,empresa,telefono — o el formato viejo
-// firstname,email,empresa, sigue funcionando) y regresa al instante un CSV
-// listo para Mailchimp con el RSVP_URL de cada quien. Si el correo ya existe:
+// firstname,email,empresa, sigue funcionando). Si el correo ya existe:
 // - y sigue "pending", se actualizan sus datos (nombre/empresa/teléfono) con
 //   los del CSV — útil para corregir datos que vinieron mal la primera vez.
 // - y ya respondió (yes/no), no se toca nada — sus propios datos mandan.
 // En ningún caso se duplica: siempre se reutiliza el token de siempre.
+// Al terminar regresa a /admin (no descarga archivo) — para el CSV con
+// RSVP_URL listo para Mailchimp usa "Descargar CSV (Mailchimp)" → Todos.
 router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res) => {
   if (!req.file) return res.redirect("/admin");
 
   const text = req.file.buffer.toString("utf8").replace(/^﻿/, "");
   const rows = parseCsv(text);
 
-  const out = [["firstname", "email", "RSVP_URL"]];
   let creados = 0;
   let actualizados = 0;
   let existentes = 0;
@@ -192,12 +203,8 @@ router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res
     const telefono = (row.telefono || "").trim();
     if (!email) { omitidos++; continue; }
 
-    const firstNameForMailchimp = nombreCompleto.split(/\s+/)[0] || "";
-
     const existing = getContactByEmail.get(email);
-    let token;
     if (existing) {
-      token = existing.token;
       if (existing.status === "pending") {
         updateContactIfPending.run(nombreCompleto || null, empresa || null, telefono || null, existing.id);
         actualizados++;
@@ -205,19 +212,15 @@ router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res
         existentes++;
       }
     } else {
-      token = nanoid(24);
+      const token = nanoid(24);
       const shareToken = nanoid(24);
       insertContactFull.run(token, shareToken, nombreCompleto, email, empresa || null, telefono || null);
       creados++;
     }
-    out.push([firstNameForMailchimp, email, `${PUBLIC_BASE_URL}/rsvp/${token}`]);
   }
 
-  const csv = out.map((r) => r.map(csvCell).join(",")).join("\r\n");
-  res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("X-Import-Summary", `creados=${creados};actualizados=${actualizados};existentes=${existentes};omitidos=${omitidos}`);
-  res.setHeader("Content-Disposition", 'attachment; filename="moove_mailchimp_rsvp_urls.csv"');
-  res.send("﻿" + csv);
+  const params = new URLSearchParams({ creados, actualizados, existentes, omitidos });
+  res.redirect(`/admin?${params.toString()}`);
 });
 
 function csvCell(value) {
@@ -233,9 +236,25 @@ function splitName(fullName) {
   return [first, last];
 }
 
-// CSV listo para importar a Mailchimp: contactos confirmados (status = yes)
-// + todos los socios (si ya subieron su info, se asume que van).
+// CSV para Mailchimp. Dos modos via ?scope=:
+// - "todos" (default): TODOS los contactos con su RSVP_URL — para la
+//   campaña de invitación inicial.
+// - "confirmados": solo status = yes + sus socios, sin RSVP_URL — para
+//   sincronizar la lista final de asistentes ya cerca del evento.
 router.get("/export.csv", requireAuth, (req, res) => {
+  if (req.query.scope !== "confirmados") {
+    const contacts = db.prepare("SELECT * FROM contacts ORDER BY created_at ASC").all();
+    const rows = [["firstname", "email", "RSVP_URL"]];
+    for (const c of contacts) {
+      const firstname = (c.nombre || c.firstname || "").trim().split(/\s+/)[0] || "";
+      rows.push([firstname, c.email || "", `${PUBLIC_BASE_URL}/rsvp/${c.token}`]);
+    }
+    const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="moove_todos_rsvp_urls.csv"');
+    return res.send("﻿" + csv);
+  }
+
   const contacts = db.prepare("SELECT * FROM contacts WHERE status = 'yes' ORDER BY created_at ASC").all();
   const socios = db.prepare("SELECT * FROM socios ORDER BY created_at ASC").all();
   const contactById = {};
