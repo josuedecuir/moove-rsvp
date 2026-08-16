@@ -11,6 +11,15 @@ const insertContact = db.prepare(`
   VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 'yes', datetime('now'))
 `);
 
+const getContactByEmail = db.prepare("SELECT * FROM contacts WHERE LOWER(email) = LOWER(?)");
+
+const updateExistingAsYes = db.prepare(`
+  UPDATE contacts SET
+    nombre = ?, empresa = ?, telefono = ?,
+    privacy_accepted_at = datetime('now'), status = 'yes', responded_at = datetime('now')
+  WHERE id = ?
+`);
+
 function isValidPhone(telefono) {
   return /^[0-9]{10}$/.test((telefono || "").trim());
 }
@@ -67,6 +76,24 @@ router.post("/:token", (req, res) => {
   }
   if (!privacy) {
     return renderError("Debes aceptar el aviso de privacidad para continuar.");
+  }
+
+  // Si el correo ya existe (ej. venía de la campaña con su propio link
+  // personal), no se crea un contacto duplicado — se actualiza el que ya
+  // tenía y se reutiliza su token de siempre.
+  const existing = getContactByEmail.get(email.trim());
+  if (existing) {
+    updateExistingAsYes.run(nombre.trim(), empresa.trim(), telefono.trim(), existing.id);
+    const updated = getContactByEmail.get(email.trim());
+
+    sendConfirmationEmail({
+      to: updated.email,
+      firstname: nombre.trim().split(" ")[0],
+      rsvpUrl: rsvpUrl(updated.token),
+      shareUrl: shareUrl(updated.share_token),
+    }).catch((err) => console.error("[email] error enviando confirmación:", err.message));
+
+    return res.redirect(`/rsvp/${updated.token}`);
   }
 
   const token = nanoid(24);
