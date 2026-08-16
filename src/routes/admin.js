@@ -229,11 +229,17 @@ function csvCell(value) {
   return s;
 }
 
+// Convención mexicana típica: 1 o 2 nombres de pila + 1 o 2 apellidos.
+// Con 4 palabras se asume 2+2 (ej. "Miguel Ángel Zapata Cabrera"), con
+// 3 se asume 1+2 (ej. "Rodolfo Lara Acosta") — no es infalible (hay
+// nombres de pila compuestos de 3 palabras, por ejemplo), pero acierta
+// en la gran mayoría de los casos reales de la lista.
 function splitName(fullName) {
-  const parts = (fullName || "").trim().split(/\s+/);
-  const first = parts.shift() || "";
-  const last = parts.join(" ");
-  return [first, last];
+  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return ["", ""];
+  if (parts.length === 1) return [parts[0], ""];
+  const splitAt = parts.length % 2 === 0 ? parts.length / 2 : 1;
+  return [parts.slice(0, splitAt).join(" "), parts.slice(splitAt).join(" ")];
 }
 
 // CSV para Mailchimp. Dos modos via ?scope=:
@@ -247,13 +253,14 @@ router.get("/export.csv", requireAuth, (req, res) => {
     const rows = [["Email Address", "First Name", "Last Name", "Company", "Phone", "Tags", "RSVPURL"]];
     for (const c of contacts) {
       const [first, last] = splitName(c.nombre || c.firstname || "");
+      const esInterno = (c.empresa || "").trim().toLowerCase() === "moove";
       rows.push([
         c.email || "",
         first,
         last,
         c.empresa || "",
         c.telefono || "",
-        "Cliente Activo",
+        esInterno ? "Equipo interno" : "Cliente Activo",
         `${PUBLIC_BASE_URL}/rsvp/${c.token}`,
       ]);
     }
