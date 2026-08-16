@@ -244,10 +244,18 @@ function splitName(fullName) {
 router.get("/export.csv", requireAuth, (req, res) => {
   if (req.query.scope !== "confirmados") {
     const contacts = db.prepare("SELECT * FROM contacts ORDER BY created_at ASC").all();
-    const rows = [["firstname", "email", "RSVP_URL"]];
+    const rows = [["Email Address", "First Name", "Last Name", "Company", "Phone", "Tags", "RSVPURL"]];
     for (const c of contacts) {
-      const firstname = (c.nombre || c.firstname || "").trim().split(/\s+/)[0] || "";
-      rows.push([firstname, c.email || "", `${PUBLIC_BASE_URL}/rsvp/${c.token}`]);
+      const [first, last] = splitName(c.nombre || c.firstname || "");
+      rows.push([
+        c.email || "",
+        first,
+        last,
+        c.empresa || "",
+        c.telefono || "",
+        "Cliente Activo",
+        `${PUBLIC_BASE_URL}/rsvp/${c.token}`,
+      ]);
     }
     const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
