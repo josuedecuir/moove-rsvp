@@ -21,7 +21,7 @@ router.get("/:shareToken", (req, res) => {
   }
 
   res.render("invite_form", {
-    title: "Moove Private — Invitación",
+    title: "The New Society — Invitación",
     inviterName: contact.nombre || contact.firstname || "Un contacto Moove",
     eventDate: EVENT_DATE_LABEL,
     eventCity: EVENT_CITY,
@@ -46,7 +46,7 @@ router.post("/:shareToken", uploadIne, (req, res) => {
   const files = req.files || {};
   const renderError = (msg) =>
     res.status(400).render("invite_form", {
-      title: "Moove Private — Invitación",
+      title: "The New Society — Invitación",
       inviterName: contact.nombre || contact.firstname || "Un contacto Moove",
       eventDate: EVENT_DATE_LABEL,
       eventCity: EVENT_CITY,
@@ -76,7 +76,7 @@ router.post("/:shareToken", uploadIne, (req, res) => {
   insertSocio.run(contact.id, nombre.trim(), email.trim(), telefono.trim(), inefrontPath, inebackPath);
 
   res.render("invite_thanks", {
-    title: "Confirmado — Moove Private",
+    title: "Confirmado — The New Society",
     inviterName: contact.nombre || contact.firstname,
   });
 });

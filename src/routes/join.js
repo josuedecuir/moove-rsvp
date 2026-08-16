@@ -38,13 +38,13 @@ router.get("/:token", (req, res) => {
     return res.status(404).render("not_found", { title: "No encontrado" });
   }
   res.render("join_form", {
-    title: "Moove Private",
+    title: "The New Society",
     eventDate: EVENT_DATE_LABEL,
     eventCity: EVENT_CITY,
     privacyUrl: PRIVACY_URL,
     joinToken: JOIN_TOKEN,
     error: null,
-    ogTitle: "Moove Private — Algo está por suceder.",
+    ogTitle: "The New Society — Algo está por suceder.",
     ogDescription: `${EVENT_DATE_LABEL} · ${EVENT_CITY}. Evento privado — confirma tu asistencia.`,
   });
 });
@@ -57,7 +57,7 @@ router.post("/:token", (req, res) => {
   const { nombre, email, empresa, telefono, privacy } = req.body;
   const renderError = (msg) =>
     res.status(400).render("join_form", {
-      title: "Moove Private",
+      title: "The New Society",
       eventDate: EVENT_DATE_LABEL,
       eventCity: EVENT_CITY,
       privacyUrl: PRIVACY_URL,

@@ -40,7 +40,7 @@ router.get("/:token", (req, res) => {
 
   if (contact.status === "yes" && !editing) {
     return res.render("rsvp_confirmed", {
-      title: "Confirmado — Moove Private",
+      title: "Confirmado — The New Society",
       contact,
       shareUrl: shareUrl(contact),
       rsvpUrl: rsvpUrl(contact),
@@ -49,14 +49,14 @@ router.get("/:token", (req, res) => {
 
   if (contact.status === "no" && !editing) {
     return res.render("rsvp_declined", {
-      title: "Moove Private",
+      title: "The New Society",
       contact,
       rsvpUrl: rsvpUrl(contact),
     });
   }
 
   return res.render("rsvp_form", {
-    title: "Moove Private",
+    title: "The New Society",
     contact,
     eventDate: EVENT_DATE_LABEL,
     eventCity: EVENT_CITY,
@@ -72,7 +72,7 @@ router.post("/:token/yes", (req, res) => {
   const { nombre, empresa, telefono, privacy } = req.body;
   const renderError = (msg) =>
     res.status(400).render("rsvp_form", {
-      title: "Moove Private",
+      title: "The New Society",
       contact: { ...contact, nombre, empresa, telefono },
       eventDate: EVENT_DATE_LABEL,
       eventCity: EVENT_CITY,
