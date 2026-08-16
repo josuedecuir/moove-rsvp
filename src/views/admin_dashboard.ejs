@@ -73,6 +73,21 @@
     </form>
   </div>
 
+  <div class="add-contact">
+    <div class="label">Importar CSV en lote (para Mailchimp)</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">
+      Columnas: <code>firstname,email,empresa</code>. Si un correo ya existe, no se duplica — se reutiliza su link de siempre.
+      Al enviar, descarga automáticamente un CSV con la columna <code>RSVP_URL</code> lista para subir a Mailchimp.
+    </div>
+    <form action="/admin/contacts/import" method="POST" enctype="multipart/form-data" style="display:flex;gap:14px;align-items:flex-end;">
+      <div class="f">
+        <label>Archivo CSV</label>
+        <input type="file" name="file" accept=".csv" required style="color:var(--text);font-size:13px;">
+      </div>
+      <button type="submit" class="logout-btn" style="height:38px;">Importar y descargar</button>
+    </form>
+  </div>
+
   <table class="contacts">
     <thead>
       <tr>

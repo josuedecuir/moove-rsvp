@@ -1,17 +1,62 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const multer = require("multer");
 const { nanoid } = require("nanoid");
 const db = require("../db");
 const { UPLOADS_DIR } = require("../upload");
 const { PUBLIC_BASE_URL } = require("../config");
 
 const router = express.Router();
+const csvUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 const insertContact = db.prepare(`
   INSERT INTO contacts (token, share_token, firstname, email, empresa)
   VALUES (?, ?, ?, ?, ?)
 `);
+
+const getContactByEmail = db.prepare("SELECT * FROM contacts WHERE LOWER(email) = LOWER(?)");
+
+// Parser de CSV con soporte de campos entre comillas (a diferencia del
+// split-by-comma simple de scripts/import-contacts.js).
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  const pushField = () => { row.push(field); field = ""; };
+  const pushRow = () => { pushField(); rows.push(row); row = []; };
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      pushField();
+    } else if (c === "\n") {
+      pushRow();
+    } else if (c === "\r") {
+      // ignore, \n lo maneja
+    } else {
+      field += c;
+    }
+  }
+  if (field.length || row.length) pushRow();
+
+  const cleaned = rows.filter((r) => r.some((c) => c.trim().length));
+  if (!cleaned.length) return [];
+  const header = cleaned[0].map((h) => h.trim().toLowerCase());
+  return cleaned.slice(1).map((r) => {
+    const obj = {};
+    header.forEach((h, i) => (obj[h] = (r[i] || "").trim()));
+    return obj;
+  });
+}
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -92,6 +137,47 @@ router.post("/contacts/:id/delete", requireAuth, (req, res) => {
     deleteContactById.run(id);
   }
   res.redirect("/admin");
+});
+
+// Importa en lote un CSV (firstname,email,empresa) y regresa al instante un
+// CSV listo para Mailchimp con el RSVP_URL de cada quien. Si el correo ya
+// existe, reutiliza su contacto y token de siempre — no crea duplicados.
+router.post("/contacts/import", requireAuth, csvUpload.single("file"), (req, res) => {
+  if (!req.file) return res.redirect("/admin");
+
+  const text = req.file.buffer.toString("utf8").replace(/^﻿/, "");
+  const rows = parseCsv(text);
+
+  const out = [["firstname", "email", "RSVP_URL"]];
+  let creados = 0;
+  let existentes = 0;
+  let omitidos = 0;
+
+  for (const row of rows) {
+    const email = (row.email || "").trim();
+    const firstname = (row.firstname || "").trim();
+    const empresa = (row.empresa || "").trim();
+    if (!email) { omitidos++; continue; }
+
+    const existing = getContactByEmail.get(email);
+    let token;
+    if (existing) {
+      token = existing.token;
+      existentes++;
+    } else {
+      token = nanoid(24);
+      const shareToken = nanoid(24);
+      insertContact.run(token, shareToken, firstname, email, empresa || null);
+      creados++;
+    }
+    out.push([firstname, email, `${PUBLIC_BASE_URL}/rsvp/${token}`]);
+  }
+
+  const csv = out.map((r) => r.map(csvCell).join(",")).join("\r\n");
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("X-Import-Summary", `creados=${creados};existentes=${existentes};omitidos=${omitidos}`);
+  res.setHeader("Content-Disposition", 'attachment; filename="moove_mailchimp_rsvp_urls.csv"');
+  res.send("﻿" + csv);
 });
 
 function csvCell(value) {
