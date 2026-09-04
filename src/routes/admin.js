@@ -254,13 +254,14 @@ router.get("/export.csv", requireAuth, (req, res) => {
     for (const c of contacts) {
       const [first, last] = splitName(c.nombre || c.firstname || "");
       const esInterno = (c.empresa || "").trim().toLowerCase() === "moove";
+      const statusTag = c.status === "yes" ? "Confirmado" : c.status === "no" ? "Declino" : "Pendiente";
       rows.push([
         c.email || "",
         first,
         last,
         c.empresa || "",
         c.telefono || "",
-        esInterno ? "Equipo interno" : "Cliente Activo",
+        `${esInterno ? "Equipo interno" : "Cliente Activo"},${statusTag}`,
         `${PUBLIC_BASE_URL}/rsvp/${c.token}`,
       ]);
     }
