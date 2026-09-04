@@ -251,7 +251,9 @@ router.get("/export.csv", requireAuth, (req, res) => {
   if (req.query.scope !== "confirmados") {
     const contacts = db.prepare("SELECT * FROM contacts ORDER BY created_at ASC").all();
     const rows = [["Email Address", "First Name", "Last Name", "Company", "Phone", "Tags", "RSVPURL"]];
+    const contactById = {};
     for (const c of contacts) {
+      contactById[c.id] = c;
       const [first, last] = splitName(c.nombre || c.firstname || "");
       const esInterno = (c.empresa || "").trim().toLowerCase() === "moove";
       const statusTag = c.status === "yes" ? "Confirmado" : c.status === "no" ? "Declino" : "Pendiente";
@@ -263,6 +265,23 @@ router.get("/export.csv", requireAuth, (req, res) => {
         c.telefono || "",
         `${esInterno ? "Equipo interno" : "Cliente Activo"},${statusTag}`,
         `${PUBLIC_BASE_URL}/rsvp/${c.token}`,
+      ]);
+    }
+    // Los socios no tienen link propio (solo los contactos de primera
+    // generación pueden compartir) — se etiquetan aparte como "Socio" y
+    // heredan la empresa de quien los invitó, sin RSVPURL.
+    const socios = db.prepare("SELECT * FROM socios ORDER BY created_at ASC").all();
+    for (const s of socios) {
+      const inviter = contactById[s.contact_id];
+      const [first, last] = splitName(s.nombre || "");
+      rows.push([
+        s.email || "",
+        first,
+        last,
+        inviter ? inviter.empresa || "" : "",
+        s.telefono || "",
+        "Socio",
+        "",
       ]);
     }
     const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
