@@ -155,6 +155,7 @@ router.post("/contacts", requireAuth, (req, res) => {
 
 const deleteSociosByContact = db.prepare("DELETE FROM socios WHERE contact_id = ?");
 const deleteContactById = db.prepare("DELETE FROM contacts WHERE id = ?");
+const deleteSocioById = db.prepare("DELETE FROM socios WHERE id = ?");
 
 // Borra un contacto y a sus socios (ej. para limpiar pruebas).
 router.post("/contacts/:id/delete", requireAuth, (req, res) => {
@@ -162,6 +163,16 @@ router.post("/contacts/:id/delete", requireAuth, (req, res) => {
   if (Number.isInteger(id)) {
     deleteSociosByContact.run(id);
     deleteContactById.run(id);
+  }
+  res.redirect("/admin");
+});
+
+// Borra un socio individual (ej. duplicado por typo en el correo) sin
+// tocar al contacto que lo invitó.
+router.post("/socios/:id/delete", requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id)) {
+    deleteSocioById.run(id);
   }
   res.redirect("/admin");
 });

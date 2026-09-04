@@ -181,7 +181,11 @@
             </td>
             <td>—</td>
             <td><%= s.created_at %></td>
-            <td></td>
+            <td>
+              <form action="/admin/socios/<%= s.id %>/delete" method="POST" onsubmit="return confirm('¿Borrar al socio ' + <%- JSON.stringify(s.nombre || s.email) %> + '?');">
+                <button type="submit" class="logout-btn" style="height:28px;font-size:11px;">Borrar</button>
+              </form>
+            </td>
           </tr>
         <% }); %>
       <% }); %>
