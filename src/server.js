@@ -8,7 +8,7 @@ const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
 const adminRoutes = require("./routes/admin");
 const joinRoutes = require("./routes/join");
-const { EVENT_DATE_LABEL, EVENT_CITY, JOIN_TOKEN, PUBLIC_BASE_URL } = require("./config");
+const { PUBLIC_BASE_URL } = require("./config");
 
 const app = express();
 
@@ -51,12 +51,9 @@ app.use(
 
 app.get("/", (req, res) => {
   res.render("landing", {
-    title: "Moove Private",
-    eventDate: EVENT_DATE_LABEL,
-    eventCity: EVENT_CITY,
-    joinToken: JOIN_TOKEN,
-    ogTitle: "Moove Private — Algo está por suceder.",
-    ogDescription: `${EVENT_DATE_LABEL} · ${EVENT_CITY}. Evento privado — confirma tu asistencia.`,
+    title: "Moove Space",
+    ogTitle: "Moove Space",
+    ogDescription: "Un solo lugar privado, cerrado y exclusivo para encontrar, conversar e interactuar con otros empresarios de Moove Society.",
   });
 });
 

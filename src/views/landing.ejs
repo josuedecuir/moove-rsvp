@@ -1,27 +1,231 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<%- include('partials/head', { title }) %>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<%# Portada de rsvp.moove.mx. Generada desde Moove Space/artefacto con build_ejs.py %>
+<meta property="og:type" content="website">
+<meta property="og:title" content="<%= ogTitle %>">
+<meta property="og:description" content="<%= ogDescription %>">
+<meta property="og:image" content="<%= baseUrl %>/og-moove-space.jpg?v=1">
+<meta property="og:url" content="<%= baseUrl %>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= ogTitle %>">
+<meta name="twitter:description" content="<%= ogDescription %>">
+<meta name="twitter:image" content="<%= baseUrl %>/og-moove-space.jpg?v=1">
+<title><%= title %></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@1,400;1,500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: lienzo negro de 2000px que escala por cqw. Escritorio = franja de 14 planetas con el contador al centro. Móvil (<=720px) = una franja de planetas arriba y otra abajo del contador. */
+:root{
+  --bg:#000; --fg:#fff; --soft:#e4e1db;
+  --ui-line:rgba(255,255,255,.4); --ui-bg:rgba(0,0,0,.45);
+  --btn-bg:#fff; --btn-fg:#000; --btn-hover:#e4e1db; --focus:#fff;
+  --serif:'EB Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Hanken Grotesk','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+.frame{container-type:inline-size;max-width:2000px;margin:0 auto;position:relative;overflow-x:clip}
+.top,.title,.about,.countdown{padding-inline:max(16px,6cqw)}
+
+.top{display:flex;justify-content:center;padding-top:max(28px,3.5cqw)}
+.logo{display:block;width:clamp(96px,6.75cqw,160px);height:auto}
+.title{margin:0;font:italic 400 clamp(46px,13cqw,100px)/.98 var(--serif);letter-spacing:-.02em;text-transform:uppercase;text-align:center;text-wrap:balance;padding-top:8cqw}
+
+.field{position:relative;display:flex;flex-direction:column}
+.band{position:relative;height:44cqw;pointer-events:none}
+.pl{position:absolute;left:calc(var(--mx)*1%);top:calc(var(--my)*1cqw);width:calc(var(--md)*1cqw);translate:-50% -50%;animation:drift var(--t) ease-in-out var(--dl) infinite alternate}
+.pl img{display:block;width:100%;height:auto;animation:pop 1s cubic-bezier(.2,.7,.2,1) calc(.3s + var(--i)*.06s) both}
+@keyframes drift{to{transform:translate(calc(var(--dx)*4.4cqw),calc(var(--dy)*4.4cqw))}}
+@keyframes pop{from{opacity:0;scale:.55}to{opacity:1;scale:1}}
+
+.countdown{position:relative;z-index:1;text-align:center}
+.eyebrow{margin:0 0 4cqw;font:600 clamp(12px,3.4cqw,22px)/1 var(--sans);letter-spacing:.05em;text-transform:uppercase}
+.clock{--num:clamp(34px,11.5cqw,98px);display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0 auto;max-width:520px}
+.unit{position:relative;display:flex;flex-direction:column;align-items:center;gap:2.4cqw}
+.unit:not(:last-child)::after{content:":";position:absolute;left:100%;top:0;translate:-50% -.06em;font:500 var(--num)/1 var(--sans)}
+.num{font:500 var(--num)/1 var(--sans);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.lbl{font:500 clamp(10px,2.9cqw,17px)/1 var(--sans);letter-spacing:.04em;text-transform:uppercase}
+.open{display:none;margin:0;font:500 clamp(30px,9cqw,70px)/1.05 var(--sans);text-transform:uppercase;text-wrap:balance}
+.is-open .eyebrow,.is-open .clock{display:none}
+.is-open .open{display:block}
+
+.about{text-align:center;padding-top:4cqw;padding-bottom:max(48px,6cqw)}
+.about h2{margin:0 0 4.5cqw;font:600 clamp(20px,6cqw,34px)/1 var(--sans);letter-spacing:.04em;text-transform:uppercase}
+.about p{margin:0 auto;max-width:56ch;color:var(--soft);font:400 clamp(16px,4.2cqw,24px)/1.5 var(--sans);letter-spacing:.01em;text-wrap:balance}
+.ln{display:inline}
+.cta{display:inline-flex;align-items:center;justify-content:center;margin-top:7cqw;min-height:50px;padding:0 28px;background:var(--btn-bg);color:var(--btn-fg);font:500 clamp(16px,4.4cqw,22px)/1 var(--sans);letter-spacing:.02em;text-decoration:none;transition:background .25s,transform .25s}
+.cta:hover{background:var(--btn-hover);transform:translateY(-1px)}
+.cta:active{transform:none}
+.cal2{display:block;width:max-content;margin:18px auto 0;color:var(--soft);font:400 clamp(13px,3.4cqw,15px)/1.2 var(--sans);letter-spacing:.02em;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(255,255,255,.35);transition:color .25s,text-decoration-color .25s;animation:rise .9s ease 1.4s both}
+.cal2:hover{color:var(--fg);text-decoration-color:var(--fg)}
+.cal2:focus-visible{outline:2px solid var(--focus);outline-offset:4px}
+.cta:focus-visible{outline:2px solid var(--focus);outline-offset:4px}
+
+.snd{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;width:44px;height:44px;padding:0;border-radius:50%;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--fg);display:grid;place-items:center;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color .25s,background .25s;animation:rise .9s ease 1.4s both}
+.snd:hover{border-color:var(--fg)}
+.snd:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.snd svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.snd .w,.snd .x{transition:opacity .3s}
+.snd .w{opacity:0}.snd.on .w{opacity:1}
+.snd .x{opacity:1}.snd.on .x{opacity:0}
+
+.top{animation:rise .8s ease both}
+.title{animation:rise .9s ease .1s both}
+.countdown{animation:rise .9s ease .75s both}
+.about h2,.about p{animation:rise .9s ease 1s both}
+.cta{animation:rise .9s ease 1.2s both}
+@keyframes rise{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}
+
+@media (min-width:721px){
+  .title{padding-top:2.2cqw;font-size:clamp(44px,5.4cqw,108px)}
+  .field{display:block;height:21cqw;margin-top:3.2cqw}
+  .band{position:absolute;inset:0;height:auto}
+  .pl{left:calc(var(--x)*1%);top:calc(var(--y)*1cqw);width:calc(var(--d)*1cqw)}
+  .countdown{position:absolute;top:4.7cqw;left:50%;translate:-50% 0;padding-inline:0;width:max-content;animation-name:riseX}
+  .eyebrow{margin-bottom:1.5cqw;font-size:clamp(12px,1.1cqw,22px)}
+  .clock{--num:clamp(34px,4.9cqw,98px);grid-template-columns:repeat(4,8.85cqw);max-width:none}
+  .unit{gap:.9cqw}
+  .lbl{font-size:clamp(10px,.85cqw,17px)}
+  .open{font-size:clamp(24px,3.1cqw,62px);padding-top:1.4cqw}
+  .about{padding-top:3.4cqw;padding-bottom:max(48px,4.5cqw)}
+  .about h2{margin-bottom:1.1cqw;font-size:clamp(18px,1.7cqw,34px)}
+  .about p{max-width:none;font-size:clamp(15px,1.2cqw,24px)}
+  .ln{display:block}
+  .cta{margin-top:3.6cqw;min-height:clamp(46px,2.6cqw,56px);padding:0 clamp(22px,1.9cqw,40px);font-size:clamp(15px,1.25cqw,24px)}
+}
+@keyframes riseX{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (min-width:721px){.pl{translate:-50% -50%}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
 </head>
 <body>
-<div class="page">
-<div class="wrap">
-  <%- include('partials/logo') %>
+<main class="frame" id="frame">
+  <header class="top"><img class="logo" src="/landing/logo.svg" alt="Moove"></header>
+  <h1 class="title">The New Society</h1>
 
-  <div class="kicker">Invitación privada</div>
-  <div class="title">Algo está<br>por suceder.</div>
+  <section class="field" aria-label="Cuenta regresiva">
+    <div class="band a" aria-hidden="true"><span class="pl" style="--x:16;--y:5.65;--d:5.6;--mx:22;--my:10;--md:11;--dx:0.35;--dy:-0.30;--t:10s;--dl:-0.0s"><img src="/landing/planets/p4.png" alt="" style="--i:0" decoding="async"></span><span class="pl" style="--x:27.85;--y:4.45;--d:7.75;--mx:78;--my:12;--md:14;--dx:-0.47;--dy:0.40;--t:15s;--dl:-3.7s"><img src="/landing/planets/p1.png" alt="" style="--i:1" decoding="async"></span><span class="pl" style="--x:8.5;--y:9.55;--d:3.1;--mx:38;--my:6;--md:6.5;--dx:0.59;--dy:0.50;--t:13s;--dl:-7.4s"><img src="/landing/planets/p5.png" alt="" style="--i:2" decoding="async"></span><span class="pl" style="--x:3.6;--y:12.1;--d:2.1;--mx:66;--my:36;--md:4.5;--dx:-0.35;--dy:-0.60;--t:11s;--dl:-0.1s"><img src="/landing/planets/p6.png" alt="" style="--i:3" decoding="async"></span><span class="pl" style="--x:11.85;--y:15.1;--d:4.5;--mx:10;--my:33;--md:9.5;--dx:0.47;--dy:0.30;--t:16s;--dl:-14.8s"><img src="/landing/planets/p7.png" alt="" style="--i:4" decoding="async"></span><span class="pl" style="--x:20.35;--y:13.8;--d:6.3;--mx:50;--my:28;--md:12.5;--dx:-0.59;--dy:0.40;--t:14s;--dl:-4.5s"><img src="/landing/planets/p3.png" alt="" style="--i:5" decoding="async"></span><span class="pl" style="--x:28.3;--y:17.8;--d:5.5;--mx:90;--my:34;--md:11;--dx:0.35;--dy:-0.50;--t:12s;--dl:-10.2s"><img src="/landing/planets/p2.png" alt="" style="--i:6" decoding="async"></span></div>
+    <div class="countdown">
+      <p class="eyebrow">Disponible en:</p>
+      <div class="clock" id="clock" role="timer" aria-label="Cuenta regresiva a Moove Space">
+        <div class="unit"><span class="num" id="d">00</span><span class="lbl">Días</span></div>
+        <div class="unit"><span class="num" id="h">00</span><span class="lbl">Horas</span></div>
+        <div class="unit"><span class="num" id="m">00</span><span class="lbl">Minutos</span></div>
+        <div class="unit"><span class="num" id="s">00</span><span class="lbl">Segundos</span></div>
+      </div>
+      <p class="open">Ya está disponible</p>
+    </div>
+    <div class="band b" aria-hidden="true"><span class="pl" style="--x:71.15;--y:5.75;--d:5.5;--mx:80;--my:12;--md:11;--dx:-0.47;--dy:0.60;--t:10s;--dl:-5.9s"><img src="/landing/planets/e187.png" alt="" style="--i:7" decoding="async"></span><span class="pl" style="--x:78.7;--y:8.75;--d:4.55;--mx:52;--my:30;--md:9.5;--dx:0.59;--dy:0.30;--t:15s;--dl:-14.6s"><img src="/landing/planets/p10.png" alt="" style="--i:8" decoding="async"></span><span class="pl" style="--x:86;--y:6.95;--d:3.7;--mx:66;--my:8;--md:8;--dx:-0.35;--dy:-0.40;--t:13s;--dl:-7.3s"><img src="/landing/planets/p9.png" alt="" style="--i:9" decoding="async"></span><span class="pl" style="--x:95.85;--y:10;--d:1.4;--mx:93;--my:36;--md:3.5;--dx:0.47;--dy:0.50;--t:11s;--dl:-4.0s"><img src="/landing/planets/p0.png" alt="" style="--i:10" decoding="async"></span><span class="pl" style="--x:90.35;--y:12.35;--d:3.0;--mx:36;--my:38;--md:6.5;--dx:-0.59;--dy:0.60;--t:16s;--dl:-8.7s"><img src="/landing/planets/e191.png" alt="" style="--i:11" decoding="async"></span><span class="pl" style="--x:72.9;--y:16.55;--d:7.15;--mx:20;--my:14;--md:13.5;--dx:0.35;--dy:-0.30;--t:14s;--dl:-2.4s"><img src="/landing/planets/e188.png" alt="" style="--i:12" decoding="async"></span><span class="pl" style="--x:83;--y:16.05;--d:4.0;--mx:8;--my:36;--md:8.5;--dx:-0.47;--dy:0.40;--t:12s;--dl:-0.1s"><img src="/landing/planets/p8.png" alt="" style="--i:13" decoding="async"></span></div>
+  </section>
 
-  <p class="body-copy">Hay un grupo muy reducido de clientes Moove que va a recibir esto antes que nadie.</p>
-  <p class="body-copy">El <%= eventDate %> vamos a reunir a ese grupo en un espacio privado en <%= eventCity %>. No es un evento abierto. No hay lista pública.</p>
-  <p class="body-copy">Todavía no podemos decirte de qué se trata. Lo que sí podemos decirte es que vale la pena que apartes la fecha.</p>
+  <section class="about">
+    <h2>Moove Space</h2>
+    <p><span class="ln">Moove Space conecta a los dueños de empresa que forman parte de Moove Society.</span> <span class="ln">Un solo lugar exclusivo para encontrar, conversar e interactuar con otros empresarios como tú.</span></p>
+    <a class="cta" id="cta" href="/moove-space.ics">Agregar a mi calendario</a>
+    <a class="cal2" id="cal2" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Moove+Space&amp;details=Moove+Space+ya+est%C3%A1+disponible.+Entra+en+https%3A%2F%2Fconnect.moove.mx&amp;dates=20261016T000000Z%2F20261016T003000Z" target="_blank" rel="noopener">o abrir en Google Calendar</a>
+  </section>
+</main>
+<button class="snd" id="snd" type="button" aria-pressed="false" aria-label="Activar sonido">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path class="w" d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/><path class="x" d="M16 9.5l5 5M21 9.5l-5 5"/></svg>
+</button>
 
-  <hr class="divider">
+<script>
+(function(){
+  // Lanzamiento: 15 de octubre de 2026, 18:00 hora de Ciudad de México (UTC-6, sin horario de verano).
+  var TARGET=new Date("2026-10-15T18:00:00-06:00").getTime();
+  var frame=document.getElementById("frame"),cta=document.getElementById("cta"),clock=document.getElementById("clock");
+  var els={d:document.getElementById("d"),h:document.getElementById("h"),m:document.getElementById("m"),s:document.getElementById("s")};
+  var forceOpen=location.hash==="#entrar"; // vista previa del estado "ya disponible"
+  function pad(n){return n<10?"0"+n:""+n}
+  function setOpen(){
+    frame.classList.add("is-open");
+    document.getElementById("cal2").hidden=true;cta.textContent="Entrar";cta.href="https://connect.moove.mx";cta.target="_self";
+  }
+  function tick(){
+    var ms=TARGET-Date.now();
+    if(forceOpen||ms<=0){setOpen();return false}
+    var t=Math.floor(ms/1000);
+    var d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60;
+    els.d.textContent=pad(d);els.h.textContent=pad(h);els.m.textContent=pad(m);els.s.textContent=pad(s);
+    clock.setAttribute("aria-label","Faltan "+d+" días, "+h+" horas y "+m+" minutos");
+    return true;
+  }
+  if(tick()){var id=setInterval(function(){if(!tick())clearInterval(id)},1000)}
+})();
 
-  <div class="hint" style="margin-bottom:20px;">¿Podremos contar contigo? Confirma en menos de un minuto — solo necesitamos algunos datos.</div>
-  <a href="/join/<%= joinToken %>" class="btn-next btn-primary" style="width:100%;box-sizing:border-box;text-align:center;">Confirmar mi asistencia</a>
+(function(){
+  // Sonido ambiente: intenta arrancar solo; si el navegador lo bloquea, arranca con el primer toque o clic. El boton lo silencia o lo activa.
+  var btn=document.getElementById("snd");
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!btn||!AC){if(btn)btn.hidden=true;return}
+  var VOL=0.5,FADE=3,KEY="moove-space-muted";
+  var ctx,gain,buf,loading,started=false,muted=false;
+  try{muted=localStorage.getItem(KEY)==="1"}catch(e){}
+  function save(){try{localStorage.setItem(KEY,muted?"1":"0")}catch(e){}}
+  function paint(){
+    var on=started&&!muted;
+    btn.classList.toggle("on",on);
+    btn.setAttribute("aria-pressed",on?"true":"false");
+    btn.setAttribute("aria-label",on?"Silenciar sonido":"Activar sonido");
+  }
+  function load(){
+    if(loading)return loading;
+    ctx=new AC();gain=ctx.createGain();gain.gain.value=0;gain.connect(ctx.destination);
+    ctx.onstatechange=function(){if(ctx.state==="running"&&buf&&!muted)begin()};
+    loading=fetch("/landing/audio/ambiente.mp3").then(function(r){if(!r.ok)throw new Error("audio");return r.arrayBuffer()})
+      .then(function(ab){return new Promise(function(ok,no){ctx.decodeAudioData(ab,ok,no)})})
+      .then(function(b){buf=b});
+    loading.catch(function(){btn.hidden=true});
+    return loading;
+  }
+  function fadeTo(v,s){
+    var t=ctx.currentTime;gain.gain.cancelScheduledValues(t);
+    gain.gain.setValueAtTime(gain.gain.value,t);gain.gain.linearRampToValueAtTime(v,t+s);
+  }
+  function begin(){
+    if(started||!buf)return;
+    started=true;
+    var src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.connect(gain);src.start(0);
+    fadeTo(muted?0:VOL,FADE);paint();
+  }
+  function go(){ // llamar dentro de un gesto del usuario
+    load();
+    var p=ctx.resume();
+    try{var s=ctx.createBufferSource();s.buffer=ctx.createBuffer(1,1,22050);s.connect(ctx.destination);s.start(0)}catch(e){}
+    loading.then(function(){return p}).then(function(){if(ctx.state==="running")begin()}).catch(function(){});
+  }
+  var EV=["pointerup","touchend","click","keydown"];
+  function first(e){
+    if(btn.contains(e.target))return;
+    EV.forEach(function(n){document.removeEventListener(n,first,true)});
+    if(!muted)go();
+  }
+  EV.forEach(function(n){document.addEventListener(n,first,true)});
+  btn.addEventListener("click",function(){
+    EV.forEach(function(n){document.removeEventListener(n,first,true)});
+    if(!started){muted=false;save();go();return}
+    muted=!muted;save();fadeTo(muted?0:VOL,muted?.4:1.2);paint();
+    if(!muted&&ctx.state!=="running")ctx.resume();
+  });
+  document.addEventListener("visibilitychange",function(){
+    if(!started)return;
+    if(document.hidden)ctx.suspend();else if(!muted)ctx.resume();
+  });
+  // intento de autoplay: funciona solo si el navegador ya permite sonido a este sitio
+  if(!muted)load().then(function(){if(ctx.state==="running")begin()}).catch(function(){});
+  paint();
+})();
+</script>
 
-  <p class="hint" style="margin-top:24px;">Si tienes socios en tu empresa que también quieras invitar, podrás agregarlos al confirmar.</p>
-</div>
-</div>
 </body>
 </html>
