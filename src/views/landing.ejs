@@ -40,7 +40,7 @@ body{margin:0;color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:ant
 
 .field{position:relative;display:flex;flex-direction:column}
 .band{position:relative;height:44cqw;pointer-events:none}
-.pl{position:absolute;left:calc(var(--mx)*1%);top:calc(var(--my)*1cqw);width:calc(var(--md)*1cqw);translate:-50% -50%;animation:drift var(--t) ease-in-out var(--dl) infinite alternate}
+.pl{position:absolute;left:calc(var(--mx)*1%);top:calc(var(--my)*1cqw);width:calc(var(--md)*.78cqw);translate:-50% -50%;animation:drift var(--t) ease-in-out var(--dl) infinite alternate}
 .pl img{display:block;width:100%;height:auto;animation:pop 1s cubic-bezier(.2,.7,.2,1) calc(.3s + var(--i)*.06s) both}
 @keyframes drift{to{transform:translate(calc(var(--dx)*4.4cqw),calc(var(--dy)*4.4cqw))}}
 @keyframes pop{from{opacity:0;scale:.55}to{opacity:1;scale:1}}
