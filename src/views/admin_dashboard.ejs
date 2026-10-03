@@ -48,6 +48,7 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
       <button type="button" class="logout-btn" onclick="downloadCsv()">Descargar CSV (Mailchimp)</button>
+      <a class="logout-btn" href="/admin/interesados.csv" style="text-decoration:none;">Descargar interesados (CSV)</a>
       <form class="logout-form" action="/admin/logout" method="POST">
         <button class="logout-btn" type="submit">Cerrar sesión</button>
       </form>
@@ -60,6 +61,8 @@
     <div class="stat"><div class="n"><%= stats.no %></div><div class="l">Declinaron</div></div>
     <div class="stat"><div class="n"><%= stats.pending %></div><div class="l">Pendientes</div></div>
     <div class="stat"><div class="n"><%= stats.socios %></div><div class="l">Socios invitados</div></div>
+    <div class="stat"><div class="n"><%= stats.cuenta %></div><div class="l">Vieron la cuenta regresiva</div></div>
+    <div class="stat"><div class="n"><%= stats.interesados %></div><div class="l">Quieren entrar a Moove Space</div></div>
   </div>
 
   <div class="add-contact">
@@ -102,6 +105,35 @@
     </form>
   </div>
 
+  <div class="add-contact">
+    <div class="label">Interesados en Moove Space (<%= interesados.length %>)</div>
+    <% if (!interesados.length) { %>
+      <div style="font-size:12px;color:var(--muted);">Todavía nadie se ha anotado en la portada.</div>
+    <% } else { %>
+      <div style="overflow-x:auto;">
+        <table class="contacts" style="width:100%;">
+          <thead><tr><th>Nombre</th><th>Empresa</th><th>Correo</th><th>Fecha (CDMX)</th><th>Contacto Moove</th><th></th></tr></thead>
+          <tbody>
+            <% interesados.forEach(function(i) { %>
+              <tr>
+                <td><strong style="color:var(--text);"><%= i.nombre %></strong></td>
+                <td><%= i.empresa %></td>
+                <td><%= i.correo %></td>
+                <td><%= new Date(i.created_at.replace(' ', 'T') + 'Z').toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %></td>
+                <td><%= i.contact_id ? (i.contacto_nombre || i.contacto_firstname || 'Sí') : '—' %></td>
+                <td>
+                  <form action="/admin/interesados/<%= i.id %>/delete" method="POST" data-nombre="<%= i.nombre %>" onsubmit="return confirm('¿Borrar a ' + this.dataset.nombre + ' de la lista?');">
+                    <button type="submit" class="logout-btn" style="height:28px;font-size:11px;">Borrar</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
   <table class="contacts">
     <thead>
       <tr>
@@ -112,6 +144,7 @@
         <th>INE</th>
         <th>Link RSVP</th>
         <th>Respondió</th>
+        <th>Cuenta regresiva</th>
         <th></th>
       </tr>
     </thead>
@@ -137,16 +170,22 @@
           <td><span class="rsvp-link" onclick="copyRsvpLink(this)" title="Click para copiar"><%= baseUrl %>/rsvp/<%= c.token %></span></td>
           <td><%= c.responded_at || '—' %></td>
           <td>
+            <% if (c.cuenta_clicks > 0) { %>
+              <span class="status-pill status-yes">Vio</span><br>
+              <span style="color:var(--muted);font-size:11px;"><%= new Date(c.cuenta_first_at.replace(' ', 'T') + 'Z').toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %> · <%= c.cuenta_clicks %> <%= c.cuenta_clicks === 1 ? 'vez' : 'veces' %></span>
+            <% } else { %>—<% } %>
+          </td>
+          <td>
             <div class="row-actions">
               <button type="button" class="logout-btn" style="padding:6px 10px;font-size:10px;" onclick="toggleEdit(<%= c.id %>)">Editar</button>
-              <form action="/admin/contacts/<%= c.id %>/delete" method="POST" onsubmit="return confirm('¿Borrar a ' + <%- JSON.stringify(c.nombre || c.firstname || c.email) %> + ' y sus socios?');">
+              <form action="/admin/contacts/<%= c.id %>/delete" method="POST" data-nombre="<%= c.nombre || c.firstname || c.email %>" onsubmit="return confirm('¿Borrar a ' + this.dataset.nombre + ' y sus socios?');">
                 <button type="submit" class="logout-btn" style="padding:6px 10px;font-size:10px;">Borrar</button>
               </form>
             </div>
           </td>
         </tr>
         <tr class="edit-row" id="edit-row-<%= c.id %>">
-          <td colspan="8">
+          <td colspan="9">
             <form action="/admin/contacts/<%= c.id %>/edit" method="POST">
               <div class="f">
                 <label>Nombre</label>
@@ -181,8 +220,9 @@
             </td>
             <td>—</td>
             <td><%= s.created_at %></td>
+            <td>—</td>
             <td>
-              <form action="/admin/socios/<%= s.id %>/delete" method="POST" onsubmit="return confirm('¿Borrar al socio ' + <%- JSON.stringify(s.nombre || s.email) %> + '?');">
+              <form action="/admin/socios/<%= s.id %>/delete" method="POST" data-nombre="<%= s.nombre || s.email %>" onsubmit="return confirm('¿Borrar al socio ' + this.dataset.nombre + '?');">
                 <button type="submit" class="logout-btn" style="height:28px;font-size:11px;">Borrar</button>
               </form>
             </td>

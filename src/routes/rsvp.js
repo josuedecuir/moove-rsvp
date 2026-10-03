@@ -30,6 +30,27 @@ function rsvpUrl(contact) {
   return `${PUBLIC_BASE_URL}/rsvp/${contact.token}`;
 }
 
+const markCuenta = db.prepare(`
+  UPDATE contacts SET
+    cuenta_clicks = cuenta_clicks + 1,
+    cuenta_first_at = COALESCE(cuenta_first_at, datetime('now')),
+    cuenta_last_at = datetime('now')
+  WHERE id = ?
+`);
+
+// Botón "Ver la cuenta regresiva" del correo: registra quién entró y lo manda
+// a la portada. Siempre redirige (exista o no el token) para no revelar nada.
+router.get("/:token/cuenta", (req, res) => {
+  const contact = getContactByToken.get(req.params.token);
+  if (contact && req.method !== "HEAD") {
+    markCuenta.run(contact.id);
+    // Se recuerda en la sesión para prellenar y ligar su formulario de interés.
+    req.session.contactToken = contact.token;
+    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+  }
+  res.redirect(302, "/");
+});
+
 router.get("/:token", (req, res) => {
   const contact = getContactByToken.get(req.params.token);
   if (!contact) {

@@ -8,7 +8,10 @@ const rsvpRoutes = require("./routes/rsvp");
 const inviteRoutes = require("./routes/invite");
 const adminRoutes = require("./routes/admin");
 const joinRoutes = require("./routes/join");
-const { PUBLIC_BASE_URL } = require("./config");
+const interesadosRoutes = require("./routes/interesados");
+const db = require("./db");
+const { startDigestScheduler } = require("./digest");
+const { PUBLIC_BASE_URL, PRIVACY_URL } = require("./config");
 
 const app = express();
 
@@ -21,6 +24,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Disponible en todas las vistas para armar meta tags Open Graph absolutos.
@@ -49,8 +53,24 @@ app.use(
   })
 );
 
+const getContactByToken = db.prepare("SELECT * FROM contacts WHERE token = ?");
+const getInteresadoByContact = db.prepare("SELECT 1 FROM interesados WHERE contact_id = ?");
+
 app.get("/", (req, res) => {
+  // Quien llega desde su link del correo ya está identificado: se prellena el formulario.
+  let prefill = { nombre: "", empresa: "", correo: "" };
+  let yaAnotado = false;
+  const token = req.session && req.session.contactToken;
+  const contact = token ? getContactByToken.get(token) : null;
+  if (contact) {
+    prefill = { nombre: contact.nombre || contact.firstname || "", empresa: contact.empresa || "", correo: contact.email || "" };
+    yaAnotado = !!getInteresadoByContact.get(contact.id);
+  }
   res.render("landing", {
+    prefill,
+    enviado: req.query.enviado === "1" || yaAnotado,
+    errorForm: typeof req.query.error === "string" ? req.query.error.slice(0, 120) : "",
+    privacyUrl: PRIVACY_URL,
     title: "Moove Space",
     ogTitle: "Moove Space",
     ogDescription: "Un solo lugar privado, cerrado y exclusivo para encontrar, conversar e interactuar con otros empresarios de Moove Society.",
@@ -61,6 +81,7 @@ app.use("/rsvp", rsvpRoutes);
 app.use("/invite", inviteRoutes);
 app.use("/admin", adminRoutes);
 app.use("/join", joinRoutes);
+app.use("/interesados", interesadosRoutes);
 
 app.use((req, res) => {
   res.status(404).render("not_found", { title: "No encontrado" });
@@ -78,4 +99,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Moove RSVP corriendo en http://localhost:${PORT}`);
+  startDigestScheduler();
 });

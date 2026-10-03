@@ -107,6 +107,11 @@ router.get("/", requireAuth, (req, res) => {
     .prepare("SELECT * FROM contacts ORDER BY created_at DESC")
     .all();
 
+  const interesados = db
+    .prepare(
+      "SELECT i.*, c.nombre AS contacto_nombre, c.firstname AS contacto_firstname FROM interesados i LEFT JOIN contacts c ON c.id = i.contact_id ORDER BY i.created_at DESC"
+    )
+    .all();
   const socios = db.prepare("SELECT * FROM socios ORDER BY created_at ASC").all();
   const sociosByContact = {};
   for (const s of socios) {
@@ -119,6 +124,8 @@ router.get("/", requireAuth, (req, res) => {
     no: contacts.filter((c) => c.status === "no").length,
     pending: contacts.filter((c) => c.status === "pending").length,
     socios: socios.length,
+    cuenta: contacts.filter((c) => c.cuenta_clicks > 0).length,
+    interesados: interesados.length,
   };
 
   let importSummary = null;
@@ -134,6 +141,7 @@ router.get("/", requireAuth, (req, res) => {
   res.render("admin_dashboard", {
     title: "Admin — Moove Private",
     contacts,
+    interesados,
     sociosByContact,
     stats,
     baseUrl: PUBLIC_BASE_URL,
@@ -252,6 +260,32 @@ function splitName(fullName) {
   const splitAt = parts.length % 2 === 0 ? parts.length / 2 : 1;
   return [parts.slice(0, splitAt).join(" "), parts.slice(splitAt).join(" ")];
 }
+
+// Interesados en Moove Space (los que dejaron sus datos en la portada).
+router.get("/interesados.csv", requireAuth, (req, res) => {
+  const rows = [["Nombre", "Empresa", "Correo", "Fecha (CDMX)", "Contacto Moove", "Incluido en aviso al equipo"]];
+  const fmt = (utc) =>
+    new Date(String(utc).replace(" ", "T") + "Z").toLocaleString("es-MX", {
+      timeZone: "America/Mexico_City",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  for (const i of db.prepare("SELECT * FROM interesados ORDER BY created_at ASC").all()) {
+    rows.push([i.nombre, i.empresa, i.correo, fmt(i.created_at), i.contact_id ? "Sí" : "No", i.notificado_at ? "Sí" : "No"]);
+  }
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="moove_space_interesados.csv"');
+  res.send("\ufeff" + csv);
+});
+
+router.post("/interesados/:id/delete", requireAuth, (req, res) => {
+  db.prepare("DELETE FROM interesados WHERE id = ?").run(req.params.id);
+  res.redirect("/admin");
+});
 
 // CSV para Mailchimp. Dos modos via ?scope=:
 // - "todos" (default): TODOS los contactos con su RSVP_URL — para la
